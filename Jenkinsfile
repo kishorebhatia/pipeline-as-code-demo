@@ -1,5 +1,4 @@
 #!groovy
-jettyUrl = 'http://localhost:8081/'
 
 stage 'Dev'
 node {
@@ -20,7 +19,7 @@ node {
     deploy 'staging'
 }
 
-input message: "Does ${jettyUrl}staging/ look good?"
+input message: "Does staging look good?"
 try {
     checkpoint('Before production')
 } catch (NoSuchMethodError _) {
@@ -29,10 +28,9 @@ try {
 
 stage name: 'Production', concurrency: 1
 node {
-    sh "wget -O - -S ${jettyUrl}staging/"
     echo 'Production server looks to be alive'
     deploy 'production'
-    echo "Deployed to ${jettyUrl}production/"
+    echo "Deployed to production"
 }
 
 def mvn(args) {
@@ -41,9 +39,7 @@ def mvn(args) {
 
 def runTests(duration) {
     node {
-        checkout scm
-        runWithServer {url ->
-            mvn "-o -f sometests test -Durl=${url} -Dduration=${duration}"
+        sh "sleep ${duration}"
         }
     }
 }
@@ -55,14 +51,4 @@ def deploy(id) {
 
 def undeploy(id) {
     sh "rm /tmp/webapps/${id}.war"
-}
-
-def runWithServer(body) {
-    def id = UUID.randomUUID().toString()
-    deploy id
-    try {
-        body.call "${jettyUrl}${id}/"
-    } finally {
-        undeploy id
-    }
 }
