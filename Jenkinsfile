@@ -42,7 +42,6 @@ def runTests(duration) {
         sh "sleep ${duration}"
         }
     }
-}
 
 def deploy(id) {
     unstash 'war'
