@@ -1,7 +1,7 @@
+/*
 #!groovy
 jettyUrl = 'http://localhost:8081/'
 
-/*
 stage 'Dev'
 node {
     checkout scm
