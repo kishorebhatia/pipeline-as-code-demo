@@ -1,6 +1,7 @@
 #!groovy
 jettyUrl = 'http://localhost:8081/'
 
+/*
 stage 'Dev'
 node {
     checkout scm
@@ -65,4 +66,4 @@ def runWithServer(body) {
     } finally {
         undeploy id
     }
-}
+}*/
