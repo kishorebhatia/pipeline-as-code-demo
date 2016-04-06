@@ -4,7 +4,7 @@
   <groupId>org.jenkinsci.plugins.workflow.demo</groupId>
   <artifactId>demo-war</artifactId>
   <packaging>war</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.1-SNAPSHOT</version>
   <name>demo-war Maven Webapp</name>
   <url>http://maven.apache.org</url>
   <dependencies>
