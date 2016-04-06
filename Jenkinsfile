@@ -1,8 +1,15 @@
 #!groovy
 
 stage 'Dev'
-node {
-    checkout scm
+node ('jnlp1') {
+  checkout([
+      $class: 'GitSCM',
+      branches: scm.branches,
+      doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+      extensions: scm.extensions + [[$class: 'CloneOption', noTags: false, reference: '', shallow: true]],
+      submoduleCfg: [],
+      userRemoteConfigs: scm.userRemoteConfigs
+    ])
     mvn 'clean package'
     dir('target') {stash name: 'war', includes: 'x.war'}
 }
@@ -34,7 +41,7 @@ node {
 }
 
 def mvn(args) {
-    sh "${tool 'Maven 3.x'}/bin/mvn ${args}"
+    sh "${tool 'M3'}/bin/mvn ${args}"
 }
 
 def runTests(duration) {
