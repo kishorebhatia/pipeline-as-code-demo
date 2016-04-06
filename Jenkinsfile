@@ -1,7 +1,7 @@
 #!groovy
 
 stage 'Dev'
-node {
+node ('linux') {
   checkout([
       $class: 'GitSCM',
       branches: scm.branches,
