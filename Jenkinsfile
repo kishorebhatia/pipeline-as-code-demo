@@ -2,7 +2,7 @@
 jettyUrl = 'http://localhost:8081/'
 
 stage 'Dev'
-node {
+node ('docker-cloud'){
     checkout scm
     mvn '-o clean package'
     dir('target') {stash name: 'war', includes: 'x.war'}
@@ -16,7 +16,7 @@ parallel(longerTests: {
 })
 
 stage name: 'Staging', concurrency: 1
-node {
+node ('docker-cloud') {
     deploy 'staging'
 }
 
@@ -28,7 +28,7 @@ try {
 }
 
 stage name: 'Production', concurrency: 1
-node {
+node ('docker-cloud') {
     sh "wget -O - -S ${jettyUrl}staging/"
     echo 'Production server looks to be alive'
     deploy 'production'
@@ -40,7 +40,7 @@ def mvn(args) {
 }
 
 def runTests(duration) {
-    node {
+    node ('docker-cloud')  {
         checkout scm
         runWithServer {url ->
             mvn "-o -f sometests test -Durl=${url} -Dduration=${duration}"
