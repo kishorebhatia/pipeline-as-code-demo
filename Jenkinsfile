@@ -1,52 +1,32 @@
 #!groovy
 jettyUrl = 'http://localhost:8081/'
 
-/*
-stage 'Dev'
-node {
-    checkout scm
-    mvn '-o clean package'
-    dir('target') {stash name: 'war', includes: 'x.war'}
-}
+node ('docker-cloud') {
+   // Mark the code checkout 'stage'....
+   stage 'Checkout'
 
-stage 'QA'
-parallel(longerTests: {
-    runTests(30)
-}, quickerTests: {
-    runTests(20)
-})
+   // Get some code from a GitHub repository
+   checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/kishorebhatia/pipeline-as-code-demo']]])
 
-stage name: 'Staging', concurrency: 1
-node {
-    deploy 'staging'
-}
+   // Get the maven tool.
+   // ** NOTE: This 'M3' maven tool must be configured
+   // **       in the global configuration.           
+   def mvnHome = tool 'Maven 3.x'
 
-input message: "Does ${jettyUrl}staging/ look good?"
-try {
-    checkpoint('Before production')
-} catch (NoSuchMethodError _) {
-    echo 'Checkpoint feature available in CloudBees Jenkins Enterprise.'
-}
+   // Mark the code build 'stage'....
+   stage 'Build'
+   // Run the maven build
+   sh "${mvnHome}/bin/mvn -Dmaven.test.failure.ignore clean package"
+  // step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
+   
+   stage 'Approve'
+   def email = "Please <a href=\""+ env.BUILD_URL + "/input/\">Approve</a> Jenkins job: " + env.JOB_NAME + " Build #" + env.BUILD_NUMBER 
+mail bcc: '', body: email, cc: '', charset: 'UTF-8', from: 'beedemo.sa@gmail.com', mimeType: 'text/html', replyTo: 'beedemo.sa@gmail.com', subject: 'Please Approve', to: 'kbhatia@cloudbees.com'
+input message: 'Approve?', submitter: 'kbhatia'
+echo 'email sent'
 
-stage name: 'Production', concurrency: 1
-node {
-    sh "wget -O - -S ${jettyUrl}staging/"
-    echo 'Production server looks to be alive'
-    deploy 'production'
-    echo "Deployed to ${jettyUrl}production/"
-}
-
-def mvn(args) {
-    sh "${tool 'Maven 3.x'}/bin/mvn ${args}"
-}
-
-def runTests(duration) {
-    node {
-        checkout scm
-        runWithServer {url ->
-            mvn "-o -f sometests test -Durl=${url} -Dduration=${duration}"
-        }
-    }
+stage 'DeployPROD'
+echo 'Deployed to PROD'
 }
 
 def deploy(id) {
