@@ -6,6 +6,7 @@ node ('docker-cloud'){
     checkout scm
     mvn 'clean package'
     dir('target') {stash name: 'war', includes: 'x.war'}
+    echo "test for PR"
 }
 
 stage 'QA'
