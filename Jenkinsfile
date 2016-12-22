@@ -2,7 +2,7 @@
 jettyUrl = 'http://localhost:8081/'
 
 stage 'Dev'
-node ('docker-cloud'){
+node ('shared'){
     checkout scm
     mvn 'clean package'
     dir('target') {stash name: 'war', includes: 'x.war'}
@@ -28,7 +28,7 @@ try {
 }
 
 stage name: 'Production', concurrency: 1
-node ('docker-cloud') {
+node ('shared') {
     sh "wget -O - -S ${jettyUrl}staging/"
     echo 'Production server looks to be alive'
     deploy 'production'
