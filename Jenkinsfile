@@ -45,9 +45,9 @@ def runTests(duration) {
 
 def deploy(id) {
     unstash 'war'
-    sh "cp x.war /tmp/${id}.war"
+    sh "cp x.war ${id}.war"
 }
 
 def undeploy(id) {
-    sh "rm /tmp/${id}.war"
+    sh "rm ${id}.war"
 }
